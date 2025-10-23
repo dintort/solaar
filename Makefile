@@ -3,6 +3,9 @@ UDEV_RULES_SOURCE := rules.d/$(UDEV_RULE_FILE)
 UDEV_RULES_SOURCE_UINPUT := rules.d-uinput/$(UDEV_RULE_FILE)
 UDEV_RULES_DEST := /etc/udev/rules.d/
 
+PYTHON ?= python3
+PIP ?= $(PYTHON) -m pip
+
 PIP_ARGS ?= .
 
 .PHONY: install_ubuntu install_macos
@@ -35,8 +38,8 @@ install_brew:
 
 install_pip:
 	@echo "Installing Solaar via pip"
-	python -m pip install --upgrade pip
-	pip install $(PIP_ARGS)
+	$(PIP) install --upgrade pip
+	$(PIP) install $(PIP_ARGS)
 
 install_pipx:
 	@echo "Installing Solaar via pipx"
