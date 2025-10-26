@@ -90,53 +90,6 @@ EOF
 } > "${APP_CONTENTS}/Info.plist"
 
 echo "Solaar app bundle created at ${APP_ROOT}"
-
-# Create LaunchAgent to keep Solaar running
-LAUNCH_AGENT_DIR="${HOME}/Library/LaunchAgents"
-LAUNCH_AGENT_PLIST="${LAUNCH_AGENT_DIR}/io.github.pwr-solaar.solaar.plist"
-
-mkdir -p "${LAUNCH_AGENT_DIR}"
-
 echo ""
-echo "Creating LaunchAgent to keep Solaar running..."
-
-cat > "${LAUNCH_AGENT_PLIST}" <<EOF
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-    <key>Label</key>
-    <string>io.github.pwr-solaar.solaar</string>
-    <key>ProgramArguments</key>
-    <array>
-        <string>${SOLAR_PATH}</string>
-        <string>--window=hide</string>
-    </array>
-    <key>RunAtLoad</key>
-    <true/>
-    <key>KeepAlive</key>
-    <true/>
-    <key>StandardOutPath</key>
-    <string>${HOME}/Library/Logs/solaar.log</string>
-    <key>StandardErrorPath</key>
-    <string>${HOME}/Library/Logs/solaar.error.log</string>
-    <key>ProcessType</key>
-    <string>Background</string>
-</dict>
-</plist>
-EOF
-
-echo "LaunchAgent created at ${LAUNCH_AGENT_PLIST}"
-echo ""
-echo "To enable automatic startup:"
-echo "  launchctl load \"${LAUNCH_AGENT_PLIST}\""
-echo ""
-echo "To disable automatic startup:"
-echo "  launchctl unload \"${LAUNCH_AGENT_PLIST}\""
-echo ""
-echo "To start Solaar now:"
-echo "  launchctl start io.github.pwr-solaar.solaar"
-echo ""
-echo "Logs will be written to:"
-echo "  ${HOME}/Library/Logs/solaar.log"
-echo "  ${HOME}/Library/Logs/solaar.error.log"
+echo "To install the LaunchAgent for automatic startup and keep-alive execute:"
+echo "  bash tools/create-macos-launchagent.sh"
