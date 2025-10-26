@@ -31,7 +31,7 @@ WRAPPER="${MACOS_DIR}/solaar-wrapper"
 cat > "${WRAPPER}" <<EOF
 #!/usr/bin/env bash
 set -euo pipefail
-exec "${SOLAR_PATH}" "\$@"
+exec "${SOLAR_PATH}" --window=hide "\$@"
 EOF
 chmod +x "${WRAPPER}"
 
@@ -108,6 +108,7 @@ cat > "${LAUNCH_AGENT_PLIST}" <<EOF
     <key>ProgramArguments</key>
     <array>
         <string>${SOLAR_PATH}</string>
+        <string>--window=hide</string>
     </array>
     <key>RunAtLoad</key>
     <true/>
@@ -118,7 +119,7 @@ cat > "${LAUNCH_AGENT_PLIST}" <<EOF
     <key>StandardErrorPath</key>
     <string>${HOME}/Library/Logs/solaar.error.log</string>
     <key>ProcessType</key>
-    <string>Interactive</string>
+    <string>Background</string>
 </dict>
 </plist>
 EOF
