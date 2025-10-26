@@ -74,6 +74,8 @@ cat <<EOF
     <string>1.0</string>
     <key>LSMinimumSystemVersion</key>
     <string>11.0</string>
+    <key>NSInputMonitoringUsageDescription</key>
+    <string>Solaar needs to access input devices to configure and monitor your Logitech keyboards, mice, and other peripherals.</string>
 EOF
 if [[ ${HAVE_ICON} -eq 1 ]]; then
 cat <<'EOF'
