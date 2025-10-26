@@ -2,7 +2,7 @@
 # Helper to build a minimal macOS .app wrapper for Solaar.
 set -euo pipefail
 
-APP_ROOT=${1:-Solaar.app}
+APP_ROOT=${1:-/Applications/Solaar.app}
 SOLAR_PATH=${SOLAR_PATH:-/opt/homebrew/bin/solaar}
 ICON_SOURCE=${ICON_SOURCE:-share/solaar/icons/solaar-light_100.png}
 
@@ -88,4 +88,52 @@ EOF
 } > "${APP_CONTENTS}/Info.plist"
 
 echo "Solaar app bundle created at ${APP_ROOT}"
-echo "Move the bundle to /Applications (or anywhere convenient) and launch it like any other app."
+
+# Create LaunchAgent to keep Solaar running
+LAUNCH_AGENT_DIR="${HOME}/Library/LaunchAgents"
+LAUNCH_AGENT_PLIST="${LAUNCH_AGENT_DIR}/io.github.pwr-solaar.solaar.plist"
+
+mkdir -p "${LAUNCH_AGENT_DIR}"
+
+echo ""
+echo "Creating LaunchAgent to keep Solaar running..."
+
+cat > "${LAUNCH_AGENT_PLIST}" <<EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>io.github.pwr-solaar.solaar</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>${SOLAR_PATH}</string>
+    </array>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <true/>
+    <key>StandardOutPath</key>
+    <string>${HOME}/Library/Logs/solaar.log</string>
+    <key>StandardErrorPath</key>
+    <string>${HOME}/Library/Logs/solaar.error.log</string>
+    <key>ProcessType</key>
+    <string>Interactive</string>
+</dict>
+</plist>
+EOF
+
+echo "LaunchAgent created at ${LAUNCH_AGENT_PLIST}"
+echo ""
+echo "To enable automatic startup:"
+echo "  launchctl load \"${LAUNCH_AGENT_PLIST}\""
+echo ""
+echo "To disable automatic startup:"
+echo "  launchctl unload \"${LAUNCH_AGENT_PLIST}\""
+echo ""
+echo "To start Solaar now:"
+echo "  launchctl start io.github.pwr-solaar.solaar"
+echo ""
+echo "Logs will be written to:"
+echo "  ${HOME}/Library/Logs/solaar.log"
+echo "  ${HOME}/Library/Logs/solaar.error.log"
