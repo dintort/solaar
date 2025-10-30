@@ -2,10 +2,10 @@
 # Helper to install a LaunchAgent for Solaar to keep it running in the background.
 set -euo pipefail
 
-SOLAR_PATH=${SOLAR_PATH:-/opt/homebrew/bin/solaar}
-
-if [[ ! -x "${SOLAR_PATH}" ]]; then
-    echo "Error: Unable to execute ${SOLAR_PATH}. Set SOLAR_PATH to the solaar binary." >&2
+SOLAAR_PATH=${SOLAAR_PATH:-solaar}
+SOLAAR_RESOLVED_PATH=$(command -v "${SOLAAR_PATH}" 2>/dev/null || echo "")
+if [ -z "${SOLAAR_RESOLVED_PATH}" ]; then
+    echo "Error: '${SOLAAR_PATH}' not found" >&2
     exit 1
 fi
 
@@ -28,7 +28,7 @@ cat > "${LAUNCH_AGENT_PLIST}" <<EOF
     <string>io.github.pwr-solaar.solaar</string>
     <key>ProgramArguments</key>
     <array>
-        <string>${SOLAR_PATH}</string>
+        <string>${SOLAAR_RESOLVED_PATH}</string>
         <string>--window=hide</string>
     </array>
     <key>RunAtLoad</key>
