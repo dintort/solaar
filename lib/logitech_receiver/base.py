@@ -455,7 +455,7 @@ def handle_lock(handle):
         if handles_lock.get(handle) is None:
             if logger.isEnabledFor(logging.INFO):
                 logger.info("New lock %s", repr(handle))
-            handles_lock[handle] = threading.Lock()  # Serialize requests on the handle
+            handles_lock[handle] = threading.RLock()  # Serialize requests on the handle
     return handles_lock[handle]
 
 
@@ -523,9 +523,9 @@ def request(
             params = b""
         request_data = struct.pack("!H", request_id) + params
 
-        ihandle = int(handle)
         notifications_hook = getattr(handle, "notifications_hook", None)
         try:
+            ihandle = int(handle)
             _read_input_buffer(handle, ihandle, notifications_hook)
         except exceptions.NoReceiver:
             logger.warning("device or receiver disconnected")
@@ -623,7 +623,8 @@ def ping(handle, devnumber, long_message: bool = False):
     with acquire_timeout(handle_lock(handle), handle, 10.0):
         notifications_hook = getattr(handle, "notifications_hook", None)
         try:
-            _read_input_buffer(handle, int(handle), notifications_hook)
+            ihandle = int(handle)
+            _read_input_buffer(handle, ihandle, notifications_hook)
         except exceptions.NoReceiver:
             logger.warning("device or receiver disconnected")
             return
@@ -632,7 +633,7 @@ def ping(handle, devnumber, long_message: bool = False):
         sw_id = _get_next_sw_id()
         request_id = 0x0010 | sw_id  # was 0x0018 | getrandbits(3)
         request_data = struct.pack("!HBBB", request_id, 0, 0, getrandbits(8))
-        write(int(handle), devnumber, request_data, long_message)
+        write(ihandle, devnumber, request_data, long_message)
 
         request_started = time()  # we consider timeout from this point
         delta = 0

@@ -59,11 +59,12 @@ class _ThreadedHandle:
     def close(self):
         if self._local:
             self._local = None
-            handles, self._handles = self._handles, []
-            if logger.isEnabledFor(logging.DEBUG):
-                logger.debug("%r closing %s", self, handles)
-            for h in handles:
-                base.close(h)
+            with base.acquire_timeout(base.handle_lock(self), self, 10.0):
+                handles, self._handles = self._handles, []
+                if logger.isEnabledFor(logging.DEBUG):
+                    logger.debug("%r closing %s", self, handles)
+                for h in handles:
+                    base.close(h)
 
     @property
     def notifications_hook(self):
@@ -83,13 +84,17 @@ class _ThreadedHandle:
             except Exception:
                 return self._open()
         else:
-            return -1
+            raise exceptions.NoReceiver("handle is closed")
 
     __int__ = __index__
 
     def __str__(self):
         if self._local:
-            return str(int(self))
+            try:
+                return str(int(self))
+            except exceptions.NoReceiver:
+                pass
+        return "-1"
 
     def __repr__(self):
         return f"<_ThreadedHandle({self.path})>"
