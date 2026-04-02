@@ -332,7 +332,6 @@ def write(handle, devnumber, data, long_message=False):
         hidapi.write(int(handle), wdata)
     except Exception as reason:
         logger.error("write failed, assuming handle %r no longer available", handle)
-        close(handle)
         raise exceptions.NoReceiver(reason=reason) from reason
 
 
@@ -393,7 +392,6 @@ def _read(handle, timeout) -> tuple[int, int, bytes]:
         data = hidapi.read(int(handle), _MAX_READ_SIZE, timeout)
     except Exception as reason:
         logger.warning("read failed, assuming handle %r no longer available", handle)
-        close(handle)
         raise exceptions.NoReceiver(reason=reason) from reason
 
     if data and _is_relevant_message(data):  # ignore messages that fail check
@@ -683,7 +681,6 @@ def _read_input_buffer(handle, ihandle, notifications_hook):
             data = hidapi.read(ihandle, _MAX_READ_SIZE, 0)
         except Exception as reason:
             logger.error("read failed, assuming receiver %s no longer available", handle)
-            close(handle)
             raise exceptions.NoReceiver(reason=reason) from reason
 
         if data:

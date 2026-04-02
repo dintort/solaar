@@ -82,7 +82,10 @@ class _ThreadedHandle:
             try:
                 return self._local.handle
             except Exception:
-                return self._open()
+                handle = self._open()
+                if handle is None:
+                    raise exceptions.NoReceiver("failed to open handle")
+                return handle
         else:
             raise exceptions.NoReceiver("handle is closed")
 
